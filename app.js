@@ -8,7 +8,7 @@ app.get("/hello", (req, res) => {
   res.send("<h1>Hello Page</h1>");
 });
 
-app.use("api/v1/tasks", tasks);
+app.use("/api/v1/tasks", tasks);
 
 const PORT = 3000;
 app.listen(PORT, () => {
