@@ -34,8 +34,30 @@ const getTask = async (req, res) => {
   }
 };
 
-const updateTask = (req, res) => {
-  res.send("update a task");
+const updateTask = async (req, res) => {
+  try {
+    const { id: taskID } = req.params;
+
+    const task = await Task.findOneAndUpdate({ _id: taskID }, req.body, {
+      new: true,
+      runValidators: true,
+    });
+
+    //The Filter ({ _id: taskID }): "Find the document that has this ID."
+    //The Update (req.body): "Take the new data sent by the user (the JSON in the request body) and apply it to that document."
+
+    //The Options Object:-
+    //new: true: By default, MongoDB returns the old version of the document (the one before it was updated). By setting new: true, we tell it to return the fresh, updated version so you can send it back to the frontend.
+
+    //runValidators: true: This is a major safety feature. If our Task Schema says the name is required or has a maxlength, MongoDB normally only checks those when we create a task. Setting this to true ensures that if a user tries to update a task with an empty string or an invalid value, the database will catch it and throw an error.
+
+    if (!task) {
+      return res.status(400).json({ msg: `No data with id ${taskID}` });
+    }
+    res.status(200).json({ id: taskID, data: req.body });
+  } catch (error) {
+    res.status(500).json({ msg: error });
+  }
 };
 
 const deleteTask = async (req, res) => {
