@@ -3,10 +3,12 @@ const express = require("express");
 const app = express();
 const tasks = require("./routes/tasks");
 require("dotenv").config();
+const notFound = require("./middleware/not-found");
 
 //middlewares
 app.use(express.static("./public"));
 app.use(express.json());
+app.use(notFound);
 
 //routes
 app.get("/hello", (req, res) => {
