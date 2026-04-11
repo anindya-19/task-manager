@@ -4,23 +4,20 @@ const app = express();
 const tasks = require("./routes/tasks");
 require("dotenv").config();
 const notFound = require("./middleware/not-found");
+const errorHandlerMiddleware = require("./middleware/error-handler");
 
 //middlewares
 app.use(express.static("./public"));
 app.use(express.json());
-
-//routes
-app.get("/hello", (req, res) => {
-  res.send("<h1>Hello Page</h1>");
-});
 
 app.use("/api/v1/tasks", tasks);
 
 // 404 handler - must be LAST, after all routes
 app.use(notFound);
 
-const PORT = 3000;
+app.use(errorHandlerMiddleware);
 
+const PORT = process.env.PORT || 3000;
 const start = async () => {
   try {
     await connectDB(process.env.MONGO_URI);

@@ -1,6 +1,6 @@
 const Task = require("../models/Task");
 const asyncWrapper = require("../middleware/async");
-
+const { createCustomError } = require("../errors/custom-error");
 const getAllTasks = asyncWrapper(async (req, res) => {
   const tasks = await Task.find({});
   res.status(200).json({ tasks });
@@ -11,7 +11,7 @@ const createTasks = asyncWrapper(async (req, res) => {
   res.status(201).json({ task });
 });
 
-const getTask = asyncWrapper(async (req, res) => {
+const getTask = asyncWrapper(async (req, res, next) => {
   const { id: taskID } = req.params;
   //This extracts the id property from req.params but immediately saves it into a brand new variable named taskID. It just makes the rest of the code slightly easier to read.
 
@@ -20,7 +20,9 @@ const getTask = asyncWrapper(async (req, res) => {
 
   if (!task) {
     //findOne() returns null if the given id is not found
-    return res.status(404).json({ msg: `To task with id: ${taskID}` });
+
+    return next(createCustomError(`No task with id: ${taskID}`, 404));
+    //return res.status(404).json({ msg: `No task with id: ${taskID}` });
   }
   res.status(200).json({ task });
 });
@@ -42,7 +44,8 @@ const updateTask = asyncWrapper(async (req, res) => {
   //runValidators: true: This is a major safety feature. If our Task Schema says the name is required or has a maxlength, MongoDB normally only checks those when we create a task. Setting this to true ensures that if a user tries to update a task with an empty string or an invalid value, the database will catch it and throw an error.
 
   if (!task) {
-    return res.status(400).json({ msg: `No data with id ${taskID}` });
+    return next(createCustomError(`No task with id: ${taskID}`, 404));
+    //return res.status(400).json({ msg: `No data with id ${taskID}` });
   }
   res.status(200).json({ task });
 });
@@ -53,7 +56,8 @@ const deleteTask = asyncWrapper(async (req, res) => {
   const task = await Task.findOneAndDelete({ _id: taskID });
 
   if (!task) {
-    return res.status(404).json({ msg: `Not task with id ${taskID}` });
+    return next(createCustomError(`No task with id: ${taskID}`, 404));
+    //return res.status(404).json({ msg: `Not task with id ${taskID}` });
   }
 
   res.status(200).json({ task });
