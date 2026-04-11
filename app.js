@@ -8,7 +8,6 @@ const notFound = require("./middleware/not-found");
 //middlewares
 app.use(express.static("./public"));
 app.use(express.json());
-app.use(notFound);
 
 //routes
 app.get("/hello", (req, res) => {
@@ -16,6 +15,9 @@ app.get("/hello", (req, res) => {
 });
 
 app.use("/api/v1/tasks", tasks);
+
+// 404 handler - must be LAST, after all routes
+app.use(notFound);
 
 const PORT = 3000;
 
